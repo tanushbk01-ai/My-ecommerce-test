@@ -1,1 +1,81 @@
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nova — Demo Store</title>
+<style>
+:root{--ink:#171717;--muted:#6b7280;--paper:#faf9f6;--accent:#176b55;--line:#e7e5e4}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;color:var(--ink);background:var(--paper)}
+header{display:flex;align-items:center;justify-content:space-between;padding:18px clamp(18px,5vw,70px);border-bottom:1px solid var(--line);background:#fff;position:sticky;top:0;z-index:2}
+.logo{font-size:1.45rem;font-weight:850;letter-spacing:-.06em}.logo span{color:var(--accent)}
+.cart{border:1px solid var(--line);border-radius:999px;padding:10px 15px;background:#fff;font-weight:700}
+.hero{padding:62px clamp(18px,7vw,100px) 48px;background:linear-gradient(115deg,#e8f1e9,#f6eee3);display:grid;grid-template-columns:1.1fr .9fr;gap:28px;align-items:center}
+.eyebrow{text-transform:uppercase;letter-spacing:.15em;font-size:.72rem;font-weight:800;color:var(--accent)}
+h1{font-size:clamp(2.5rem,6vw,5rem);line-height:.98;letter-spacing:-.07em;margin:14px 0 18px;max-width:650px}
+.hero p{max-width:460px;color:#555;font-size:1.04rem;line-height:1.7}
+.hero-art{min-height:240px;border-radius:28px;background:radial-gradient(circle at 35% 30%,#f7d7a5 0 13%,transparent 14%),radial-gradient(circle at 65% 55%,#8eb6a1 0 19%,transparent 20%),linear-gradient(135deg,#d5e1d4,#f2d9bd);display:grid;place-items:center;font-size:6rem}
+main{padding:36px clamp(18px,5vw,70px) 70px}.toolbar{display:flex;gap:12px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-bottom:24px}
+h2{font-size:1.8rem;letter-spacing:-.05em;margin:0}.filters{display:flex;gap:8px;flex-wrap:wrap}
+input,select{padding:11px 13px;border:1px solid var(--line);border-radius:12px;background:white;font:inherit;max-width:100%}
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px}
+.product{background:white;border:1px solid var(--line);border-radius:18px;overflow:hidden;display:flex;flex-direction:column}
+.product-art{height:185px;display:grid;place-items:center;font-size:4rem;background:var(--tone)}
+.product-body{padding:16px;display:flex;flex-direction:column;gap:9px;flex:1}.product h3{margin:0;font-size:1rem}.desc{color:var(--muted);font-size:.87rem;line-height:1.5;flex:1}.price-row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.price{font-weight:850}.add,.checkout{border:0;background:var(--accent);color:white;border-radius:11px;padding:11px 13px;font-weight:750;cursor:pointer}.add:hover,.checkout:hover{filter:brightness(.92)}
+.note{font-size:.84rem;color:var(--muted);margin-top:24px;line-height:1.6}
+.cart-panel{margin-top:28px;background:white;border:1px solid var(--line);border-radius:18px;padding:20px;display:none}.cart-panel.open{display:block}.cart-line{display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}.empty{color:var(--muted)}
+footer{border-top:1px solid var(--line);padding:22px clamp(18px,5vw,70px);font-size:.85rem;color:var(--muted);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+@media(max-width:850px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.hero{grid-template-columns:1fr}.hero-art{min-height:190px}}
+@media(max-width:480px){.grid{grid-template-columns:1fr 1fr;gap:10px}.product-art{height:130px;font-size:3rem}.product-body{padding:12px}.add{padding:10px 8px;font-size:.83rem}.desc{font-size:.8rem}.hero{padding-top:42px}}
+</style>
+</head>
+<body>
+<header><div class="logo">nova<span>.</span></div><button class="cart" id="cartToggle">Cart (<span id="cartCount">0</span>)</button></header>
+<section class="hero">
+  <div><div class="eyebrow">A tiny store demo</div><h1>Good things.<br>Thoughtfully chosen.</h1><p>A sample storefront to test your first deployment. Browse products, search, add items to your cart, and try it on your phone.</p></div>
+  <div class="hero-art" aria-label="Decorative shopping illustration">✦</div>
+</section>
+<main>
+  <div class="toolbar"><h2>Featured products</h2><div class="filters"><input id="search" type="search" placeholder="Search products…" aria-label="Search products"><select id="category" aria-label="Filter category"><option value="all">All categories</option><option value="Accessories">Accessories</option><option value="Home">Home</option><option value="Tech">Tech</option></select></div></div>
+  <section class="grid" id="products"></section>
+  <section class="cart-panel" id="cartPanel"><h2>Your cart</h2><div id="cartItems"></div><div class="price-row" style="margin-top:18px"><strong>Total: <span id="total">₹0</span></strong><button class="checkout" id="checkout">Test checkout</button></div><p class="note">Demo only: this button does not collect payment or place a real order.</p></section>
+  <p class="note">Demo storefront only. Products, prices, and cart are sample data stored in this browser. A real shop needs a secure backend, order database, and payment provider.</p>
+</main>
+<footer><span>© 2026 Nova Demo Store</span><span>Built for your first hosting test</span></footer>
+<script>
+const products=[
+{id:1,name:"Everyday Tote",category:"Accessories",price:499,emoji:"👜",tone:"#f4e3d2",desc:"A simple carry-all for everyday essentials."},
+{id:2,name:"Studio Bottle",category:"Home",price:349,emoji:"🧴",tone:"#dce9e1",desc:"A clean, minimal bottle for your desk or bag."},
+{id:3,name:"Wireless Buds",category:"Tech",price:1299,emoji:"🎧",tone:"#e4e0f3",desc:"A sample tech pick for music on the move."},
+{id:4,name:"Soft Desk Lamp",category:"Home",price:899,emoji:"💡",tone:"#f4edc9",desc:"Warm light for late-night ideas."},
+{id:5,name:"Classic Cap",category:"Accessories",price:299,emoji:"🧢",tone:"#dce8f1",desc:"An easy everyday style staple."},
+{id:6,name:"Mini Speaker",category:"Tech",price:1599,emoji:"🔊",tone:"#f2dce0",desc:"Bring a little sound to your space."},
+{id:7,name:"Ceramic Mug",category:"Home",price:249,emoji:"☕",tone:"#eadfd5",desc:"Your favourite drink, in a favourite mug."},
+{id:8,name:"Daily Watch",category:"Accessories",price:999,emoji:"⌚",tone:"#dfe8dc",desc:"A timeless look for your daily routine."}
+];
+let cart={};
+const rupees=n=>"₹"+n.toLocaleString("en-IN");
+function renderProducts(){
+ const q=document.getElementById("search").value.toLowerCase();
+ const cat=document.getElementById("category").value;
+ const list=products.filter(p=>(cat==="all"||p.category===cat)&&(p.name+" "+p.desc).toLowerCase().includes(q));
+ document.getElementById("products").innerHTML=list.map(p=>`<article class="product"><div class="product-art" style="--tone:${p.tone}">${p.emoji}</div><div class="product-body"><h3>${p.name}</h3><div class="desc">${p.desc}</div><div class="price-row"><span class="price">${rupees(p.price)}</span><button class="add" onclick="addToCart(${p.id})">Add to cart</button></div></div></article>`).join("")||'<p>No products found. Try another search.</p>';
+}
+function addToCart(id){cart[id]=(cart[id]||0)+1;renderCart();document.getElementById("cartPanel").classList.add("open")}
+function renderCart(){
+ const entries=Object.entries(cart).filter(([id,n])=>n>0);
+ const count=entries.reduce((s,[id,n])=>s+n,0);
+ const total=entries.reduce((s,[id,n])=>s+products.find(p=>p.id===Number(id)).price*n,0);
+ document.getElementById("cartCount").textContent=count;
+ document.getElementById("total").textContent=rupees(total);
+ document.getElementById("cartItems").innerHTML=entries.length?entries.map(([id,n])=>{const p=products.find(x=>x.id===Number(id));return `<div class="cart-line"><span>${p.emoji} ${p.name} × ${n}</span><strong>${rupees(p.price*n)}</strong></div>`}).join(""):'<p class="empty">Your cart is empty. Add a product to get started.</p>';
+}
+document.getElementById("search").addEventListener("input",renderProducts);
+document.getElementById("category").addEventListener("change",renderProducts);
+document.getElementById("cartToggle").addEventListener("click",()=>document.getElementById("cartPanel").classList.toggle("open"));
+document.getElementById("checkout").addEventListener("click",()=>alert("Hosting test successful! This is a demo checkout only—no payment was taken."));
+renderProducts();renderCart();
+</script>
+</body>
+</html>
